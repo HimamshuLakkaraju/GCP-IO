@@ -24,7 +24,8 @@ def validate_token(token_path) -> dict:
             return creds
         else:
             print(f"Utils invalid path")
-            # TODO add exception if needed
+            # TODO add exception
+
     except Exception as e:
         print(f"Exeption in token generation\n{e}")
         return None
