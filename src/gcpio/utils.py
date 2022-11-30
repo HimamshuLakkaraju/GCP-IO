@@ -20,10 +20,11 @@ def validate_token(token_path) -> dict:
             if not creds or not creds.valid:
                 if creds and creds.expired and creds.refresh_token:
                     creds.refresh(Request())
-                    # Update env var token value with creds.to_json()
+                    # Update env var token value with creds.to_json() TODO
             return creds
         else:
             print(f"Utils invalid path")
+            # TODO add exception
     except Exception as e:
         print(f"Exeption in token generation\n {e}")
         return None
