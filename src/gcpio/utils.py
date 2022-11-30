@@ -16,7 +16,6 @@ def validate_token(token_path) -> dict:
                     client_id=token_obj.get("client_id"),
                     client_secret=token_obj.get("client_secret"),
                 )
-                # creds = Credentials.from_authorized_user_file(token_path)
             # If there is no (valid) token available, try to refresh
             if not creds or not creds.valid:
                 if creds and creds.expired and creds.refresh_token:
