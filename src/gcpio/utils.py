@@ -1,16 +1,30 @@
 import os
+import json
 from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
 
-def generate_token_from_cred(credential_path,scopes) -> dict:
+
+def validate_token(token_path) -> dict:
     try:
-        if os.path.exists(credential_path):
-            creds = Credentials.from_authorized_user_file(credential_path, scopes)
-        # If there are no (valid) credentials available, try to refresh
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-        return creds.to_json()
+        if os.path.exists(token_path):
+            with open(token_path) as token_file:
+                token_obj = json.load(token_file)
+                creds = Credentials(
+                    token_obj.get("token"),
+                    refresh_token=token_obj.get("refresh_token"),
+                    token_uri=token_obj.get("token_uri"),
+                    client_id=token_obj.get("client_id"),
+                    client_secret=token_obj.get("client_secret"),
+                )
+                # creds = Credentials.from_authorized_user_file(token_path)
+            # If there is no (valid) token available, try to refresh
+            if not creds or not creds.valid:
+                if creds and creds.expired and creds.refresh_token:
+                    creds.refresh(Request())
+                    # Update env var token value with creds.to_json()
+            return creds
+        else:
+            print(f"Utils invalid path")
     except Exception as e:
-        print("Exeption in token generation")
+        print(f"Exeption in token generation\n {e}")
         return None
-    

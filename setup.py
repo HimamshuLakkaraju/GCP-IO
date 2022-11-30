@@ -12,7 +12,12 @@ setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    install_requires=["requests>=2.28.1", "torch>=1.13.0", "torchdata>=0.5.0"],
+    install_requires=[
+        "requests>=2.28.1",
+        "torch>=1.13.0",
+        "torchdata>=0.5.0",
+        "google-auth-oauthlib",
+    ],
     extras_require={
         "dev": ["pytest>=3.7", "twine"],
     },
