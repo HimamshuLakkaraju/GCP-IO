@@ -16,10 +16,11 @@ setup(
         "requests>=2.28.1",
         "torch>=1.13.0",
         "torchdata>=0.5.0",
+        "torchvision",
         "google-auth-oauthlib",
-        "PIL",
+        "pillow>=9.0.1",
     ],
     extras_require={
-        "dev": ["pytest>=3.7", "twine"],
+        "dev": ["pytest>=3.7", "twine", "pytest-cov>=4.0.0"],
     },
 )

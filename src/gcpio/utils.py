@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from . import settings
@@ -10,12 +11,34 @@ Utils contains the function to get the token file and create a Google Auth crede
 """
 
 
-class InvalidTokenPath(Exception):
-    pass
+def get_logger(name):
+    log_path = settings.LOG_FILE_PATH
+    log_level = settings.LOG_LEVEL
+
+    logger = logging.getLogger(name)
+    logger.setLevel(log_level)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+    )
+
+    logging_file_handler = logging.FileHandler(log_path)
+    logging_file_handler.setFormatter(formatter)
+    logger.addHandler(logging_file_handler)
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(formatter)
+    logger.addHandler(console)
+
+    return logger
+
+
+utils_logger = get_logger(__name__)
 
 
 def token() -> Credentials | None:
     token_path = settings.TOKEN_PATH_GDRIVE
+    utils_logger.debug(f"Utils - tokenpath- {token_path}")
     try:
         if os.path.exists(token_path):
             with open(token_path) as token_file:
@@ -34,12 +57,12 @@ def token() -> Credentials | None:
                     # Update env var token value with creds.to_json() TODO
             return creds
         else:
-            print(f"Utils invalid path")
-            raise InvalidTokenPath(f"Invalid path: {token_path}")
-            # TODO add exception
+            utils_logger.error(f"Utils invalid path")
+            raise Exception(f"Invalid path: {token_path}")
+            # TODO add custom exception?
 
     except Exception as e:
-        print(f"Exeption in token generation\n{e}")
+        utils_logger.error(f"Exception in token generation\n{e}")
         return None
 
 

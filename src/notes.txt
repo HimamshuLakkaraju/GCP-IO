@@ -1,1 +1,29 @@
+References:
+Related to Drive API
+https://developers.google.com/drive/api/guides/search-files
+https://developers.google.com/drive/api/v2/reference/files/list
+https://developers.google.com/drive/api/guides/manage-downloads
 https://www.daimto.com/how-to-search-for-files-with-the-google-drive-api-and-net-core/
+https://developers.google.com/drive/api/guides/ref-search-terms
+https://stackoverflow.com/questions/53151737/with-google-drive-api-is-it-possible-to-download-multiple-files-simultaneously
+
+Related to Logging
+https://docs.python.org/3/library/logging.html
+https://stackoverflow.com/questions/9321741/printing-to-screen-and-writing-to-a-file-at-the-same-time
+
+Related to Torch
+https://pytorch.org/docs/stable/data.html
+https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
+https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset
+https://discuss.pytorch.org/t/how-to-use-collate-fn/27181
+https://python.plainenglish.io/understanding-collate-fn-in-pytorch-f9d1742647d3
+https://stackoverflow.com/questions/65279115/how-to-use-collate-fn-with-dataloaders
+https://www.analyticsvidhya.com/blog/2021/09/torch-dataset-and-dataloader-early-loading-of-data/
+https://pytorch.org/docs/stable/data.html#iterable-style-datasets
+
+Related to asyncio
+https://www.aeracode.org/2018/02/19/python-async-simplified/
+https://github.com/ArjanCodes/2022-asyncio/blob/main/asyncio_gather.py
+
+Other References
+https://pillow.readthedocs.io/en/stable/reference/Image.html
