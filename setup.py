@@ -17,6 +17,7 @@ setup(
         "torch>=1.13.0",
         "torchdata>=0.5.0",
         "google-auth-oauthlib",
+        "PIL",
     ],
     extras_require={
         "dev": ["pytest>=3.7", "twine"],

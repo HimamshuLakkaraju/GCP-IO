@@ -2,9 +2,20 @@ import os
 import json
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
+from . import settings
+
+"""
+Utils contains the function to get the token file and create a Google Auth credential. This also has few decorator functions that are yet to be implemented.
+
+"""
 
 
-def validate_token(token_path) -> dict:
+class InvalidTokenPath(Exception):
+    pass
+
+
+def token() -> Credentials | None:
+    token_path = settings.TOKEN_PATH_GDRIVE
     try:
         if os.path.exists(token_path):
             with open(token_path) as token_file:
@@ -24,8 +35,19 @@ def validate_token(token_path) -> dict:
             return creds
         else:
             print(f"Utils invalid path")
+            raise InvalidTokenPath(f"Invalid path: {token_path}")
             # TODO add exception
 
     except Exception as e:
         print(f"Exeption in token generation\n{e}")
         return None
+
+
+def auth_token(func):
+    """To be implemented. This can be used to check if the token is valid before making any API calls and refresh the token if necessary. This decorator function is not implemented yet."""
+
+    def wrapper(*args, **kwargs) -> dict:
+        files = func(*args, **kwargs)
+        return files
+
+    return wrapper
