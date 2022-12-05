@@ -35,6 +35,7 @@ dataset = g.create_dataset(
     skip_labels=skip_labels,
 )
 
+# load this dataset into torch dataloader.
 dataloader = DataLoader(
     dataset,
     batch_size,
@@ -42,4 +43,18 @@ dataloader = DataLoader(
         SequentialSampler(dataset), batch_size=batch_size, drop_last=True
     ),
 )
+#get a sample batch
+samples = next(iter(dataloader))
+images = []
+    for i in range(len(samples)):
+        # ignoring labels and collecting images only for verification
+        img, _ = samples[i]
+        images.append(img)
+    images = torch.cat(images)
+
+grid = make_grid(images, nrow=20)
+save_image(grid, f"./examples/generated_images.png")
+
 ```
+## outputs
+![output](examples/20imagesdataset_generated_images.png)
