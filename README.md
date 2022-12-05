@@ -57,4 +57,4 @@ save_image(grid, f"./examples/generated_images.png")
 
 ```
 ## outputs
-![output](examples/20imagesdataset_generated_images.png)
+![output](examples/10kimagesdataset_generated_images.png)
