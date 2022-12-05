@@ -14,7 +14,9 @@ logger = get_logger(__name__)
 
 
 class Gdrive:
-    """Google Drive class that has functions to return the metadata of files in a Google Drive folder and generate torch datasets from files in google drive"""
+    """Google Drive class that has functions to return the metadata of files in a Google Drive folder and generate torch datasets from files in google drive
+    Available functions: get_files_metadata, create_dataset, download_files_from_drive
+    """
 
     def __init__(self) -> None:
         self.token = token()
@@ -30,14 +32,13 @@ class Gdrive:
         """Retrieves the metadata of files present in the Drive folder ID passed as an argument to the function.
 
         Args:
-            folder_name (_type_, optional): _description_. Defaults to None.
-            folder_id (_type_, optional): _description_. Defaults to None.
-            page_size (int, optional): _description_. Defaults to 500.
-            file_type (_type_, optional): _description_. Defaults to None.
-            replace_query (_type_, optional): _description_. Defaults to None.
+            folder_id (str): The folder id in google drive (can be found at the end of url in web browser).
+            page_size (int, optional): number of files to get back in response. Defaults to 500.
+            file_type (MimeType, optional): Can be used to get the files of a certain MimeType for example image/png. Defaults to None.(gets all files in the given folder)
+            replace_query (str, optional): Can be used to make more complex queries. This uses q parameter from Gdrive API documentation. Defaults to None.
 
         Returns:
-            dict: _description_
+            dict: returns a file dictionary that has the files and len as keys. files has a list of file objects as response
         """
         try:
             logger.debug(
@@ -115,20 +116,27 @@ class Gdrive:
                 f"Args received by create_dataset func - {data_folder_id,labels_folder_id, page_size,data_file_type,labels_file_type,replace_query,skip_labels}"
             )
             logger.info("Fetching data from G Drive")
-            if labels_folder_id == None:
-                raise NotImplementedError(
-                    "Only returning images without labels is not implemented"
-                )
+
             if skip_labels:
-                raise NotImplementedError("Skip labels")
-                # data_files_metadata_dict = self.get_files_metadata(
-                #     data_folder_name,
-                #     data_folder_id,
-                #     page_size=page_size,
-                #     file_type=data_file_type,
-                #     replace_query=None,
-                # )
-                # data_files_metadata_dict.get("files")
+                logger.debug(f"skip labels set to - {skip_labels}")
+
+                data_files_metadata_dict = self.get_files_metadata(
+                    data_folder_id,
+                    page_size=page_size,
+                    file_type=data_file_type,
+                    replace_query=replace_query,
+                )
+                if data_files_metadata_dict:
+                    data_files = self.reformat_response(
+                        data_files_metadata_dict.get("files")
+                    )
+                    logger.info("Generating dataset.")
+                    dataset = GdriveDataset(
+                        data_files, None, self.download_files_from_drive
+                    )
+                    logger.info("Dataset generated.")
+                    return dataset
+
             else:
                 data_files_metadata_dict = self.get_files_metadata(
                     data_folder_id,
@@ -164,7 +172,13 @@ class Gdrive:
                         return dataset
 
                     elif labels_files_metadata_dict.get("len") == 1:
+                        "TODO write a func to download the labels file and a validation function to check if number of data samples match with number of rows using pandas"
+                        "Convert the label file into similar format as the others and pass it to the Dataset class"
                         raise NotImplementedError("Single label file")
+                    else:
+                        raise Exception(
+                            "Number of data samples different from number of label files found."
+                        )
 
                 return None
         except NotImplementedError as e:
@@ -173,6 +187,14 @@ class Gdrive:
             logger.error(f"Exception at create_dataset func: {e}")
 
     def download_files_from_drive(self, file_id) -> bytes:
+        """Downloads a file from GDrive with the given fileid and returns the file binary
+
+        Args:
+            file_id (str): file id
+
+        Returns:
+            bytes: file binary data
+        """
         try:
             service = build("drive", "v3", credentials=self.token)
             request = service.files().get_media(fileId=file_id)
@@ -190,7 +212,7 @@ class Gdrive:
             return file.getvalue()
 
 
-class GdriveDataset(Dataset):
+class GdriveDataset(Dataset):  # pragma: no cover
     """Make API calls and create a dataset with file binaries"""
 
     def __init__(
@@ -216,7 +238,7 @@ class GdriveDataset(Dataset):
     #     await asyncio.gather(*[self.get_files_from_drive(index) for index in index])
     #     return 1
 
-    def __getitem__(self, index) -> None:
+    def __getitem__(self, index) -> None:  # pragma: no cover
         """# This function cuurently makes API calls synchronously.
         Making these API calls async would improve the performance significantly
         but that would require updating the Datafetcher functions from the torch dataloader.
@@ -237,9 +259,11 @@ class GdriveDataset(Dataset):
         for i in index:
             file_name = self.keys[i]
             data_file_id = self.data.get(file_name).get("id")
-            label_file_id = self.labels.get(file_name).get("id")
             data_file_b_content = self.download_func(data_file_id)
-            label_file_b_content = self.download_func(label_file_id)
+            label_file_b_content = []
+            if self.labels:
+                label_file_id = self.labels.get(file_name).get("id")
+                label_file_b_content = self.download_func(label_file_id)
 
             image = Image.open(io.BytesIO(data_file_b_content))
             image = self.transorm(image)

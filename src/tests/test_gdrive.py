@@ -20,14 +20,16 @@ def test_create_dataset():
     gdrive = Gdrive()
     folder_id = "1W_JcItr1ScqvwKT-m8LSoFs425XTG9vg"
     response = gdrive.create_dataset(folder_id)
-    assert NotImplementedError
+    assert response == None
 
 
 def test_create_dataset_skip_label():
     gdrive = Gdrive()
     folder_id = "1W_JcItr1ScqvwKT-m8LSoFs425XTG9vg"
-    response = gdrive.create_dataset(folder_id, skip_labels=True)
-    assert NotImplementedError
+    response = gdrive.create_dataset(
+        folder_id, data_file_type="image/png", skip_labels=True
+    )
+    assert isinstance(response, Dataset)
 
 
 def test_create_dataset_working():
@@ -87,4 +89,4 @@ def test_download_files_from_drive_invalid():
     file_id = "18tU7vyFzu_NTbTYYKYs7GTs6HBDmFY"  # invalid file id
     gdrive = Gdrive()
     response = gdrive.download_files_from_drive(file_id)
-    assert Exception
+    assert response == None
